@@ -72,17 +72,8 @@
             <div class="templatemo_right_section">
             	<h4>Categories</h4>
                 <div class="templatemo_right_section_content">
-                    <ul>
-                        <li><a href="#">Artificial and Silk</a></li>
-                        <li><a href="#">Dried and Preserved</a></li>
-                        <li><a href="#">Floral</a></li>
-                        <li><a href="#">Fresh Cut</a></li>
-                        <li><a href="#">Gardens</a></li>
-                        <li><a href="#">Gifts</a></li>
-                        <li><a href="#">Nurseries</a></li>
-                        <li><a href="#">Services</a></li>
-                        <li><a href="#">Weddings</a></li>
-                        <li><a href="#">Wholesale</a></li>
+                    <ul id="categories_container">
+                        <li><a href="#">Loading categories...</a></li>
                     </ul>
                 </div>
             </div>
@@ -116,7 +107,17 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const container = document.getElementById('products_container');
+    const categoriesContainer = document.getElementById('categories_container');
     if (!container) return;
+
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
 
     fetch('/api/products')
         .then(function (res) { return res.json(); })
@@ -128,13 +129,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
             container.innerHTML = products.map(function (p) {
                 var price = (typeof p.price === 'number') ? p.price.toFixed(2) : p.price;
-                return '\n          <div class="product_box">\n            <h3>' + (p.name || 'Untitled') + '</h3>\n            <img src="images/templatemo_image_01.jpg" alt="' + (p.name || '') + '" />\n            <p>' + (p.description || '') + '</p>\n            <div class="price">PRICE:<span>$' + price + '</span></div>\n            <div class="buynow"><a href="shoppingcard.html">Buy Now</a></div><a href="#">Details</a>\n          </div>\n        ';
+                var detailUrl = '/product-detail.html?id=' + encodeURIComponent(p.id);
+                var image = p.image || '/images/templatemo_image_01.jpg';
+                return '\n          <div class="product_box">\n            <h3><a href="' + detailUrl + '">' + escapeHtml(p.name || 'Untitled') + '</a></h3>\n            <a href="' + detailUrl + '"><img src="' + escapeHtml(image) + '" alt="' + escapeHtml(p.name || '') + '" /></a>\n            <p>' + escapeHtml(p.description || '') + '</p>\n            <div class="price">PRICE:<span>$' + price + '</span></div>\n            <div class="buynow"><a href="shoppingcard.html">Buy Now</a></div><a href="' + detailUrl + '">Details</a>\n          </div>\n        ';
             }).join('');
         })
         .catch(function (err) {
             console.error('Error fetching products:', err);
             container.innerHTML = '<p>Error loading products.</p>';
         });
+
+    if (categoriesContainer) {
+        fetch('/api/categories')
+            .then(function (res) { return res.json(); })
+            .then(function (categories) {
+                if (!categories || categories.length === 0) {
+                    categoriesContainer.innerHTML = '<li><a href="#">No categories</a></li>';
+                    return;
+                }
+
+                categoriesContainer.innerHTML = categories.map(function (c) {
+                    return '<li><a href="#">' + escapeHtml(c.name || 'Unnamed') + '</a></li>';
+                }).join('');
+            })
+            .catch(function (err) {
+                console.error('Error fetching categories:', err);
+                categoriesContainer.innerHTML = '<li><a href="#">Error loading categories</a></li>';
+            });
+    }
 });
 </script>
 
