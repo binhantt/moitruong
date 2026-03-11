@@ -118,6 +118,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const container = document.getElementById('products_container');
     if (!container) return;
 
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     fetch('/api/products')
         .then(function (res) { return res.json(); })
         .then(function (products) {
@@ -128,7 +137,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             container.innerHTML = products.map(function (p) {
                 var price = (typeof p.price === 'number') ? p.price.toFixed(2) : p.price;
-                return '\n          <div class="product_box">\n            <h3>' + (p.name || 'Untitled') + '</h3>\n            <img src="images/templatemo_image_01.jpg" alt="' + (p.name || '') + '" />\n            <p>' + (p.description || '') + '</p>\n            <div class="price">PRICE:<span>$' + price + '</span></div>\n            <div class="buynow"><a href="shoppingcard.html">Buy Now</a></div><a href="#">Details</a>\n          </div>\n        ';
+                var productId = encodeURIComponent(p.id);
+                var productUrl = '/product-detail.html?id=' + productId;
+                var image = p.image || '/images/templatemo_image_01.jpg';
+
+                return '\n          <div class="product_box">\n            <h3><a href="' + productUrl + '">' + escapeHtml(p.name || 'Untitled') + '</a></h3>\n            <a href="' + productUrl + '"><img src="' + escapeHtml(image) + '" alt="' + escapeHtml(p.name || '') + '" /></a>\n            <p>' + escapeHtml(p.description || '') + '</p>\n            <div class="price">PRICE:<span>$' + price + '</span></div>\n            <div class="buynow"><a href="shoppingcard.html">Buy Now</a></div><a href="' + productUrl + '">Details</a>\n          </div>\n        ';
             }).join('');
         })
         .catch(function (err) {

@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Product Detail - Flower Shop</title>
+<link href="/templatemo_style.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+#product_detail_box {
+    padding: 15px;
+    background: #6f0d3b;
+}
+#product_detail_box img {
+    width: 260px;
+    display: block;
+    margin-bottom: 15px;
+}
+#product_detail_box .detail_title {
+    font-size: 26px;
+    margin: 0 0 10px 0;
+}
+#product_detail_box .detail_price {
+    font-size: 20px;
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+#product_detail_box .back_link {
+    display: inline-block;
+    margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div id="templatemo_container">
+    <div id="templatemo_top_panel">
+        <div id="templatemo_language_section"></div>
+        <div id="templatemo_shopping_cart">Flower Shop</div>
+    </div>
+
+    <div id="templatemo_header">
+        <img src="/images/templatemo_site_header.jpg" alt="Flower Shop" />
+    </div>
+
+    <div id="templatemo_menu_panel">
+        <ul>
+            <li><a href="/" class="current">Home</a></li>
+        </ul>
+    </div>
+
+    <div id="templatemo_content">
+        <div id="templatemo_content_left">
+            <h2>Product Detail</h2>
+            <div id="product_detail_box">
+                <p>Loading product...</p>
+            </div>
+            <div class="cleaner_with_height">&nbsp;</div>
+        </div>
+
+        <div id="templatemo_content_right">
+            <div class="templatemo_right_section">
+                <h4>Navigation</h4>
+                <div class="templatemo_right_section_content">
+                    <ul>
+                        <li><a href="/">Back to Product List</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="cleaner">&nbsp;</div>
+    </div>
+
+    <div id="templatemo_footer_panel">
+        <div id="footer_left">
+            <img src="/images/mastercard.gif" alt="Master Card" />
+            <img src="/images/visa.gif" alt="Visa Card" />
+            <img src="/images/paypal.gif" alt="PayPal" />
+            <img src="/images/verisignsecured.gif" alt="Verisign Secured" />
+        </div>
+        <div id="footer_right">
+            Copyright &copy; 2026 <a href="#">Your Company Name</a>
+        </div>
+        <div class="cleaner">&nbsp;</div>
+    </div>
+</div>
+
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function () {
+    var container = document.getElementById('product_detail_box');
+
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    var params = new URLSearchParams(window.location.search);
+    var id = params.get('id');
+
+    if (!id) {
+        container.innerHTML = '<p>Missing product id.</p><a class="back_link" href="/">Back to home</a>';
+        return;
+    }
+
+    fetch('/api/products/' + encodeURIComponent(id))
+        .then(function (res) {
+            if (!res.ok) {
+                throw new Error('Product not found');
+            }
+            return res.json();
+        })
+        .then(function (p) {
+            var image = p.image || '/images/templatemo_image_01.jpg';
+            var price = (typeof p.price === 'number') ? p.price.toFixed(2) : p.price;
+
+            container.innerHTML = '' +
+                '<h1 class="detail_title">' + escapeHtml(p.name || 'Untitled') + '</h1>' +
+                '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(p.name || '') + '" />' +
+                '<div class="detail_price">Price: $' + escapeHtml(price) + '</div>' +
+                '<p>' + escapeHtml(p.description || 'No description available.') + '</p>' +
+                '<a class="back_link" href="/">&laquo; Back to products</a>';
+        })
+        .catch(function () {
+            container.innerHTML = '<p>Product not found.</p><a class="back_link" href="/">Back to home</a>';
+        });
+});
+</script>
+</body>
+</html>
