@@ -5,18 +5,18 @@
 <title>Flower Shop - free website template, HTML CSS</title>
 <meta name="keywords" content="free website template, flower shop, website templates, CSS, HTML" />
 <meta name="description" content="Flower Shop - free website template, W3C compliant HTML CSS layout" />
-<link href="../public/templatemo_style.css" rel="stylesheet" type="text/css" />
+<link href="/templatemo_style.css" rel="stylesheet" type="text/css" />
 <!--  Free CSS Template | Designed by TemplateMo.com  -->
 </head>
 <body>
 <div id="templatemo_container">
 <div id="templatemo_top_panel">
     	<div id="templatemo_language_section">
-			<a href="#"><img src="images/templatemo_flag_01.gif" alt="flag 1" /></a>
-            <a href="#"><img src="images/templatemo_flag_02.gif" alt="flag 2" /></a>
-            <a href="#"><img src="images/templatemo_flag_03.gif" alt="flag 3" /></a>
-            <a href="#"><img src="images/templatemo_flag_04.gif" alt="flag 4" /></a>
-            <a href="#"><img src="images/templatemo_flag_05.gif" alt="flag 5" /></a>
+			<a href="#"><img src="/images/templatemo_flag_01.gif" alt="flag 1" /></a>
+            <a href="#"><img src="/images/templatemo_flag_02.gif" alt="flag 2" /></a>
+            <a href="#"><img src="/images/templatemo_flag_03.gif" alt="flag 3" /></a>
+            <a href="#"><img src="/images/templatemo_flag_04.gif" alt="flag 4" /></a>
+            <a href="#"><img src="/images/templatemo_flag_05.gif" alt="flag 5" /></a>
         </div>
         <div id="templatemo_shopping_cart">
        	    Shopping Cart <span>(<a href="#">3 items</a>)</span>      
@@ -24,11 +24,11 @@
   </div>
      
      <div id="templatemo_header">
-     	<img src="images/templatemo_site_header.jpg" alt="Flower Shop" />
+     	<img src="/images/templatemo_site_header.jpg" alt="Flower Shop" />
      </div>
      
      <div id="templatemo_banner">
-     	<a href="#"><img src="images/templatemo_banner_image.jpg" alt="Flower Shop - Free Web Template" title="Flower Shop - Free Web Template" border="0" /></a>     </div>
+     	<a href="#"><img src="/images/templatemo_banner_image.jpg" alt="Flower Shop - Free Web Template" title="Flower Shop - Free Web Template" border="0" /></a>     </div>
      
 <div id="templatemo_menu_panel">
         <ul>
@@ -51,27 +51,8 @@
              <div class="cleaner_with_height">&nbsp;</div>
              
              <h2>New Products</h2>
-             <div class="product_box">
-             	<h3>Product One</h3>
-                <img src="images/templatemo_image_01.jpg" alt="image" />
-                <p>Aliquam tristique lacus in sapien. Suspendisse potenti.</p>
-                <div class="price">PRICE:<span>$14.00</span></div>                           
-             	<div class="buynow"><a href="shoppingcard.html">Buy Now</a></div><a href="#">Details</a>
-             </div>
-             <div class="product_box">
-             	<h3>Product Title</h3>
-                <img src="images/templatemo_image_02.jpg" alt="image" />
-                <p>Lorem ipsum dolor sit amet, consectetuer adipiscing.</p>
-                <div class="price">PRICE:<span>$18.00</span></div>                           
-             	<div class="buynow"><a href="shoppingcard.html">Buy Now</a></div><a href="#">Details</a>
-             </div>
-             <div class="product_box">
-             	<h3>Product Title</h3>
-                <img src="images/templatemo_image_03.jpg" alt="image" />
-                <p>Suspendisse potenti. Ut sed pede. Nullam vitae tellus. </p>
-                <div class="price">PRICE:<span>$26.00</span></div>                           
-             	<div class="buynow"><a href="shoppingcard.html">Buy Now</a></div><a href="#">Details</a>
-             </div>
+             <p id="products-loading" style="color:#888;font-style:italic">Đang tải sản phẩm...</p>
+             <div id="products-container"></div>
              
 			<div class="cleaner_with_height">&nbsp;</div>
         </div> <!-- end of ocntent left -->
@@ -131,5 +112,36 @@
     </div>
 </div>
 <!--  Free CSS Template | Designed by TemplateMo.com  --> 
-<div align=center>This template  downloaded form <a href='http://all-free-download.com/free-website-templates/'>free website templates</a></div></body>
+<div align=center>This template  downloaded form <a href='http://all-free-download.com/free-website-templates/'>free website templates</a></div>
+
+<script type="text/javascript">
+  fetch('/api/products')
+    .then(function(res) { return res.json(); })
+    .then(function(products) {
+      document.getElementById('products-loading').style.display = 'none';
+      var container = document.getElementById('products-container');
+      var images = [
+        '/images/templatemo_image_01.jpg',
+        '/images/templatemo_image_02.jpg',
+        '/images/templatemo_image_03.jpg'
+      ];
+      products.forEach(function(product, i) {
+        var img = images[i % images.length];
+        var box = document.createElement('div');
+        box.className = 'product_box';
+        box.innerHTML =
+          '<h3>' + product.name + '</h3>' +
+          '<img src="' + img + '" alt="' + product.name + '" />' +
+          '<p>Sản phẩm tươi đẹp cho mọi dịp.</p>' +
+          '<div class="price">PRICE:<span>$' + product.price.toFixed(2) + '</span></div>' +
+          '<div class="buynow"><a href="#">Buy Now</a></div><a href="#">Details</a>';
+        container.appendChild(box);
+      });
+    })
+    .catch(function(err) {
+      document.getElementById('products-loading').textContent = 'Không thể tải sản phẩm. Hãy chắc chắn server đang chạy tại localhost:3000';
+      console.error(err);
+    });
+</script>
+</body>
 </html>
